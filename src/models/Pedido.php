@@ -28,13 +28,13 @@ class Pedido
      */
     public function getPending()
     {
-        $stmt = $this->pdo->query('
+        $stmt = $this->pdo->query("
             SELECT p.*, 
                    (SELECT COUNT(*) FROM pedido_items WHERE pedidoID = p.pedidoID) as items_count
             FROM pedidos p
-            WHERE p.estado = "PENDIENTE"
+            WHERE p.estado = 'PENDIENTE'
             ORDER BY p.fecha_creacion ASC
-        ');
+        ");
         return $stmt->fetchAll();
     }
 

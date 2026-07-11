@@ -30,15 +30,15 @@ class Producto
      */
     public function getForMenu()
     {
-        $stmt = $this->pdo->query('
+        $stmt = $this->pdo->query("
             SELECT p.productoID, p.nombre, p.slug, p.descripcion, p.precio, p.precio_promo, p.dias_promo, 
                    p.imagen, p.disponible,
-                   COALESCE(c.nombre, "NUESTROS CLÁSICOS") AS categoria_nombre
+                   COALESCE(c.nombre, 'NUESTROS CLÁSICOS') AS categoria_nombre
             FROM productos p
             LEFT JOIN categorias c ON p.categoriaID = c.categoriaID
             WHERE p.disponible = 1 OR p.productoID IN (SELECT DISTINCT productoID FROM producto_variantes WHERE activo = 1)
             ORDER BY c.nombre DESC, p.orden_mostrado ASC
-        ');
+        ");
         return $stmt->fetchAll();
     }
 
@@ -153,15 +153,15 @@ class Producto
         $slug = strtolower(trim($nombre));
         $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
         $slug = trim($slug, '-');
-        
+
         $originalSlug = $slug;
         $counter = 1;
-        
+
         while ($this->slugExists($slug, $excludeId)) {
             $slug = $originalSlug . '-' . $counter;
             $counter++;
         }
-        
+
         return $slug;
     }
 }

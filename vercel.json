@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "functions": {
+    "public/**/*.php": {
+      "runtime": "vercel-php@0.7.3"
+    }
+  },
+  "routes": [
+    {
+      "src": "/css/(.*)",
+      "dest": "/public/css/$1"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/admin",
+      "dest": "/public/index.php"
+    },
+    {
+      "src": "/login",
+      "dest": "/public/login.php"
+    },
+    {
+      "src": "/menu",
+      "dest": "/public/menu.php"
+    },
+    {
+      "src": "/order",
+      "dest": "/public/order.php"
+    },
+    {
+      "src": "/order_confirm",
+      "dest": "/public/order_confirm.php"
+    },
+    {
+      "src": "/ticket",
+      "dest": "/public/ticket.php"
+    },
+    {
+      "src": "/categories",
+      "dest": "/public/categories.php"
+    },
+    {
+      "src": "/products",
+      "dest": "/public/products.php"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/favicon.ico"
+    },
+    {
+      "src": "/$",
+      "dest": "/public/menu.php"
+    },
+    {
+      "src": "/(.*)\\.php",
+      "dest": "/public/$1.php"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
+  ]
+}

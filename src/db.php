@@ -81,6 +81,10 @@ class DB
 // de vuelta a las claves con camelCase que espera el código PHP.
 class CompatiblePDOStatement extends PDOStatement
 {
+    protected function __construct()
+    {
+    }
+
     private static $keyMap = [
         'rolid' => 'rolID',
         'usuarioid' => 'usuarioID',

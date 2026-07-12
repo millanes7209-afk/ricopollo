@@ -23,7 +23,7 @@ class ProductoController
     {
         $productos = $this->productoModel->getAll();
         $variantes = $this->varianteModel->getAll();
-        
+
         // Agrupar variantes por producto
         $variantesMap = [];
         foreach ($variantes as $v) {
@@ -66,13 +66,21 @@ class ProductoController
     {
         $id = $data['id'] ?? null;
         $tieneVariantes = !empty($data['tiene_variantes']);
-        
+
         // Procesar imagen principal
         $imagenNombre = $this->procesarImagenPrincipal($files, $id);
-        
+
         // Generar slug
         $slug = $this->productoModel->generateSlug($data['nombre'], $id);
-        
+
+        // Convertir dias_promo de array (checkboxes) a string CSV
+        $diasPromo = null;
+        if (!empty($data['dias_promo'])) {
+            $diasPromo = is_array($data['dias_promo'])
+                ? implode(',', array_map('strtoupper', $data['dias_promo']))
+                : strtoupper($data['dias_promo']);
+        }
+
         // Preparar datos del producto
         $productoData = [
             'categoriaID' => $data['categoriaID'],
@@ -80,11 +88,11 @@ class ProductoController
             'slug' => $slug,
             'descripcion' => $data['descripcion'] ?? '',
             'precio' => $tieneVariantes ? 0 : ($data['precio'] ?? 0),
-            'precio_promo' => $data['precio_promo'] ?? null,
-            'dias_promo' => $data['dias_promo'] ?? null,
-            'disponible' => $data['disponible'] ?? 1,
+            'precio_promo' => !empty($data['precio_promo']) ? floatval($data['precio_promo']) : null,
+            'dias_promo' => $diasPromo,
+            'disponible' => isset($data['disponible']) ? 1 : 0,
             'imagen' => $imagenNombre,
-            'orden_mostrado' => $data['orden_mostrado'] ?? 0
+            'orden_mostrado' => (int) ($data['orden_mostrado'] ?? 0)
         ];
 
         $this->pdo->beginTransaction();
@@ -163,11 +171,12 @@ class ProductoController
 
     /**
      * Procesar imagen principal del producto
+     * En Vercel el filesystem es read-only, así que el upload se ignora silenciosamente.
      */
     private function procesarImagenPrincipal($files, $id)
     {
         if (!$files || empty($files['imagen']['name'])) {
-            // Si no se subió nueva imagen, mantener la existente
+            // Sin nueva imagen: mantener la existente
             if ($id) {
                 $producto = $this->productoModel->getById($id);
                 return $producto['imagen'] ?? null;
@@ -175,28 +184,47 @@ class ProductoController
             return null;
         }
 
-        $uploadDir = __DIR__ . '/../../assets/productos';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+        $file = $files['imagen'];
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            // Sin nueva imagen válida: mantener la existente
+            if ($id) {
+                $producto = $this->productoModel->getById($id);
+                return $producto['imagen'] ?? null;
+            }
+            return null;
         }
 
-        $file = $files['imagen'];
         $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         $mimeType = mime_content_type($file['tmp_name']) ?: '';
         $allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         $allowedMime = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-        if ($file['error'] !== UPLOAD_ERR_OK || !in_array($fileExt, $allowedExt) || !in_array($mimeType, $allowedMime)) {
+        if (!in_array($fileExt, $allowedExt) || !in_array($mimeType, $allowedMime)) {
             return null;
         }
 
-        // Eliminar imagen anterior si existe
-        if ($id) {
+        // Detectar directorio de uploads (Vercel usa /tmp, local usa assets/productos)
+        $localDir = __DIR__ . '/../../assets/productos';
+        if (is_writable($localDir) || (!is_dir($localDir) && @mkdir($localDir, 0755, true))) {
+            $uploadDir = $localDir;
+        } elseif (is_writable('/tmp')) {
+            $uploadDir = '/tmp';
+        } else {
+            // Filesystem completamente read-only: conservar imagen existente
+            if ($id) {
+                $producto = $this->productoModel->getById($id);
+                return $producto['imagen'] ?? null;
+            }
+            return null;
+        }
+
+        // Eliminar imagen anterior si subimos a assets locales
+        if ($uploadDir === $localDir && $id) {
             $producto = $this->productoModel->getById($id);
             if ($producto && $producto['imagen']) {
                 $oldFile = $uploadDir . '/' . $producto['imagen'];
                 if (is_file($oldFile)) {
-                    unlink($oldFile);
+                    @unlink($oldFile);
                 }
             }
         }
@@ -204,10 +232,16 @@ class ProductoController
         $nombreArchivo = 'producto_' . time() . '_' . bin2hex(random_bytes(5)) . '.' . $fileExt;
         $targetPath = $uploadDir . '/' . $nombreArchivo;
 
-        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-            return $nombreArchivo;
+        if (@move_uploaded_file($file['tmp_name'], $targetPath)) {
+            // Solo guardamos el nombre si el archivo está en el directorio permanente
+            return ($uploadDir === $localDir) ? $nombreArchivo : null;
         }
 
+        // Si falló el move, conservar imagen existente
+        if ($id) {
+            $producto = $this->productoModel->getById($id);
+            return $producto['imagen'] ?? null;
+        }
         return null;
     }
 
@@ -235,7 +269,8 @@ class ProductoController
         // Procesar cada variante
         foreach ($variantesData as $index => $v) {
             $nombreVariante = strtoupper(trim($v['nombre'] ?? ''));
-            if (empty($nombreVariante)) continue;
+            if (empty($nombreVariante))
+                continue;
 
             // Procesar imagen de variante
             $imagenNombre = null;

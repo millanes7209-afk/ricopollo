@@ -8,8 +8,14 @@ require_once __DIR__ . '/../src/db.php';
 // Verificar autenticación para rutas de admin
 function requireAuth()
 {
-    session_start();
-    if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    // Compatible con admin_logged_in (router) y usuarioID (archivos legacy de /public)
+    if (
+        (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true)
+        && !isset($_SESSION['usuarioID'])
+    ) {
         header('Location: /login');
         exit;
     }

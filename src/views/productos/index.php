@@ -2,7 +2,6 @@
 // Variables pasadas por el controlador:
 // $productos - array de productos
 // $variantesMap - array de variantes agrupadas por productoID
-require_once __DIR__ . '/../../db.php';
 ?>
 <!doctype html>
 <html lang="es" class="dark-mode">
@@ -51,10 +50,10 @@ require_once __DIR__ . '/../../db.php';
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <a href="admin.php" class="btn-outline text-xs !py-1.5 !px-3">
+        <a href="/admin" class="btn-outline text-xs !py-1.5 !px-3">
           <i class="fa-solid fa-arrow-left mr-1"></i><?php echo strtoupper('VOLVER'); ?>
         </a>
-        <a href="product_form.php" class="btn-primary text-xs !py-1.5 !px-3">
+        <a href="/product_form" class="btn-primary text-xs !py-1.5 !px-3">
           <i class="fa-solid fa-plus-circle mr-1"></i><?php echo strtoupper('CREAR'); ?>
         </a>
       </div>
@@ -70,7 +69,7 @@ require_once __DIR__ . '/../../db.php';
             <?php echo strtoupper('Comienza agregando un nuevo platillo al catálogo.'); ?>
           </p>
           <div class="mt-4">
-            <a href="product_form.php" class="btn-primary text-xs"><i
+            <a href="/product_form" class="btn-primary text-xs"><i
                 class="fa-solid fa-plus mr-1"></i><?php echo strtoupper('Crear Producto'); ?></a>
           </div>
         </div>
@@ -92,9 +91,11 @@ require_once __DIR__ . '/../../db.php';
                 <tr class="align-middle">
                   <td class="w-20">
                     <?php if (!empty($p['imagen']) && file_exists(__DIR__ . '/../assets/productos/' . $p['imagen'])): ?>
-                      <img src="../assets/productos/<?php echo htmlspecialchars($p['imagen']); ?>" alt="IMG" class="w-14 h-10 object-cover rounded-lg border border-white/10" />
+                      <img src="../assets/productos/<?php echo htmlspecialchars($p['imagen']); ?>" alt="IMG"
+                        class="w-14 h-10 object-cover rounded-lg border border-white/10" />
                     <?php else: ?>
-                      <div class="w-14 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] uppercase text-gray-400">
+                      <div
+                        class="w-14 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] uppercase text-gray-400">
                         <?php echo strtoupper('SIN IMG'); ?>
                       </div>
                     <?php endif; ?>
@@ -102,13 +103,14 @@ require_once __DIR__ . '/../../db.php';
                   <td>
                     <div class="font-bold text-white"><?php echo htmlspecialchars(strtoupper($p['nombre'])); ?></div>
                     <div class="text-[10px] text-gray-400 uppercase font-semibold mt-0.5">
-                      <i class="fa-solid fa-list mr-1"></i><?php echo htmlspecialchars(strtoupper($p['categoria_nombre'] ?: 'SIN CATEGORÍA')); ?>
+                      <i
+                        class="fa-solid fa-list mr-1"></i><?php echo htmlspecialchars(strtoupper($p['categoria_nombre'] ?: 'SIN CATEGORÍA')); ?>
                     </div>
                   </td>
                   <td>
                     <?php if ($tieneVariantes): ?>
                       <div class="text-[10px] text-gray-400 uppercase font-semibold">
-                        <?php echo count($variantesMap[$p['productoID']]); ?> <?php echo strtoupper('VARIANTES'); ?>
+                        <?php echo count($variantesMap[$p['productoID']]); ?>       <?php echo strtoupper('VARIANTES'); ?>
                       </div>
                     <?php else: ?>
                       <div class="font-bold text-[#FFE66D]">Bs.<?php echo number_format($p['precio'], 2); ?></div>
@@ -122,7 +124,7 @@ require_once __DIR__ . '/../../db.php';
                     <?php endif; ?>
                   </td>
                   <td class="text-center">
-                    <a href="products.php?action=toggle&id=<?php echo $p['productoID']; ?>"
+                    <a href="/products?action=toggle&id=<?php echo $p['productoID']; ?>"
                       class="inline-flex items-center gap-2 btn-outline text-[11px] !py-1 !px-2.5 <?php echo $p['disponible'] ? 'border-green-500 text-green-300 hover:text-white' : 'border-red-500 text-red-300 hover:text-white'; ?>"
                       title="<?php echo $p['disponible'] ? 'Marcar como no disponible' : 'Marcar como disponible'; ?>">
                       <i class="fa-solid <?php echo $p['disponible'] ? 'fa-toggle-on' : 'fa-toggle-off'; ?>"></i>
@@ -131,11 +133,11 @@ require_once __DIR__ . '/../../db.php';
                   </td>
                   <td class="text-right">
                     <div class="inline-flex gap-2">
-                      <a href="product_form.php?id=<?php echo $p['productoID']; ?>"
+                      <a href="/product_form?id=<?php echo $p['productoID']; ?>"
                         class="btn-outline text-[11px] !py-1 !px-2.5 hover:!border-[#FFE66D] hover:!text-[#FFE66D]">
                         <i class="fa-solid fa-pen-to-square mr-1"></i><?php echo strtoupper('Editar'); ?>
                       </a>
-                      <a href="products.php?action=delete&id=<?php echo $p['productoID']; ?>"
+                      <a href="/products?action=delete&id=<?php echo $p['productoID']; ?>"
                         onclick="return confirm('¿CONFIRMAR BORRADO DE ESTE PRODUCTO?');"
                         class="btn-outline text-[11px] border-red-500/30 text-red-400 hover:bg-red-950/20 hover:border-red-500 hover:!text-white !py-1 !px-2.5">
                         <i class="fa-regular fa-trash-can mr-1"></i><?php echo strtoupper('Eliminar'); ?>
@@ -148,9 +150,11 @@ require_once __DIR__ . '/../../db.php';
                     <tr class="bg-black/20">
                       <td class="w-20">
                         <?php if (!empty($v['imagen']) && file_exists(__DIR__ . '/../assets/productos/' . $v['imagen'])): ?>
-                          <img src="../assets/productos/<?php echo htmlspecialchars($v['imagen']); ?>" alt="IMG" class="w-14 h-10 object-cover rounded-lg border border-white/10" />
+                          <img src="../assets/productos/<?php echo htmlspecialchars($v['imagen']); ?>" alt="IMG"
+                            class="w-14 h-10 object-cover rounded-lg border border-white/10" />
                         <?php else: ?>
-                          <div class="w-14 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] uppercase text-gray-400">
+                          <div
+                            class="w-14 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] uppercase text-gray-400">
                             <?php echo strtoupper('SIN IMG'); ?>
                           </div>
                         <?php endif; ?>
@@ -159,11 +163,13 @@ require_once __DIR__ . '/../../db.php';
                         <div class="flex items-center justify-between py-2">
                           <div class="flex items-center gap-3">
                             <span class="text-[10px] text-gray-400 uppercase font-semibold">
-                              <i class="fa-solid fa-layer-group mr-1"></i><?php echo htmlspecialchars(strtoupper($v['nombre_variante'])); ?>
+                              <i
+                                class="fa-solid fa-layer-group mr-1"></i><?php echo htmlspecialchars(strtoupper($v['nombre_variante'])); ?>
                             </span>
-                            <span class="text-[11px] text-[#FFE66D] font-bold">Bs.<?php echo number_format($v['precio'], 2); ?></span>
+                            <span
+                              class="text-[11px] text-[#FFE66D] font-bold">Bs.<?php echo number_format($v['precio'], 2); ?></span>
                           </div>
-                          <a href="products.php?action=toggle_variante&id=<?php echo $p['productoID']; ?>&variante_id=<?php echo $v['varianteID']; ?>"
+                          <a href="/products?action=toggle_variante&id=<?php echo $p['productoID']; ?>&variante_id=<?php echo $v['varianteID']; ?>"
                             class="inline-flex items-center gap-2 btn-outline text-[10px] !py-0.5 !px-2 <?php echo $v['activo'] ? 'border-green-500 text-green-300 hover:text-white' : 'border-red-500 text-red-300 hover:text-white'; ?>"
                             title="<?php echo $v['activo'] ? 'Desactivar esta variante' : 'Activar esta variante'; ?>">
                             <i class="fa-solid <?php echo $v['activo'] ? 'fa-toggle-on' : 'fa-toggle-off'; ?>"></i>
@@ -181,7 +187,7 @@ require_once __DIR__ . '/../../db.php';
       <?php endif; ?>
     </div>
   </div>
-  <?php require_once __DIR__ . '/../src/theme_toggle.php'; ?>
+  <?php require_once __DIR__ . '/../../theme_toggle.php'; ?>
 </body>
 
 </html>

@@ -1,10 +1,13 @@
 <?php
 // Variables pasadas por el controlador:
-// $producto - producto actual (null si es nuevo)
+// $producto  - producto actual (null si es nuevo)
 // $variantes - array de variantes existentes
 // $categorias - array de categorías disponibles
-// $error - mensaje de error si existe
-require_once __DIR__ . '/../../db.php';
+// $error     - mensaje de error si existe
+// $id        - ID del producto (null si es nuevo)
+$error = $error ?? null;
+$id    = $id ?? null;
+$cats  = $categorias ?? [];
 ?>
 <!doctype html>
 <html lang="es" class="dark-mode">
@@ -312,7 +315,7 @@ require_once __DIR__ . '/../../db.php';
 
         <!-- Action buttons -->
         <div class="flex items-center justify-between pt-6 border-t border-white/5">
-          <a href="products.php" class="btn-outline text-xs">
+          <a href="/products" class="btn-outline text-xs">
             <i class="fa-solid fa-xmark mr-1"></i><?php echo strtoupper('CANCELAR'); ?>
           </a>
           <button type="submit" class="btn-primary text-xs">
@@ -323,7 +326,7 @@ require_once __DIR__ . '/../../db.php';
       </form>
     </div>
   </div>
-  <?php require_once __DIR__ . '/../src/theme_toggle.php'; ?>
+  <?php require_once __DIR__ . '/../../theme_toggle.php'; ?>
 
   <script>
     let varianteIndex = <?php echo !empty($variantes) ? count($variantes) : 0; ?>;

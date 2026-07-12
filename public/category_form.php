@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . '/../src/db.php';
 if (!isset($_SESSION['usuarioID'])) {
-    header('Location: login.php');
+    header('Location: /login');
     exit;
 }
 $pdo = DB::getPdo(true);
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->prepare('INSERT INTO categorias (nombre, slug, descripcion, activo, fecha_creacion) VALUES (?,?,?,?,NOW())')
                     ->execute([$nombre, $slug, $descripcion, $activo]);
             }
-            header('Location: categories.php');
+            header('Location: /categories');
             exit;
         } catch (Exception $e) {
             $error = 'ERROR AL GUARDAR: ' . strtoupper($e->getMessage());
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Botones -->
                 <div class="flex items-center justify-between pt-6 border-t"
                     style="border-color:var(--color-card-border)">
-                    <a href="categories.php" class="btn-outline text-xs">
+                    <a href="/categories" class="btn-outline text-xs">
                         <i class="fa-solid fa-xmark mr-1"></i>CANCELAR
                     </a>
                     <button type="submit" class="btn-primary text-xs">

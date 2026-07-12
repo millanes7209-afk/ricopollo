@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . '/../src/db.php';
 if (!isset($_SESSION['usuarioID'])) {
-    header('Location: login.php');
+    header('Location: /login');
     exit;
 }
 $pdo = DB::getPdo(true);
@@ -13,7 +13,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     // Desvincular productos antes de borrar
     $pdo->prepare('UPDATE productos SET categoriaID = NULL WHERE categoriaID = ?')->execute([$id]);
     $pdo->prepare('DELETE FROM categorias WHERE categoriaID = ?')->execute([$id]);
-    header('Location: categories.php');
+    header('Location: /categories');
     exit;
 }
 
@@ -53,10 +53,10 @@ $cats = $pdo->query('SELECT c.categoriaID, c.nombre, c.descripcion, c.activo, CO
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <a href="admin.php" class="btn-outline text-xs !py-1.5 !px-3">
+                <a href="/admin" class="btn-outline text-xs !py-1.5 !px-3">
                     <i class="fa-solid fa-arrow-left mr-1"></i>VOLVER
                 </a>
-                <a href="category_form.php" class="btn-primary text-xs !py-1.5 !px-3">
+                <a href="/category_form" class="btn-primary text-xs !py-1.5 !px-3">
                     <i class="fa-solid fa-plus-circle mr-1"></i>NUEVA CATEGORÍA
                 </a>
             </div>
@@ -71,7 +71,7 @@ $cats = $pdo->query('SELECT c.categoriaID, c.nombre, c.descripcion, c.activo, CO
                     <p class="text-xs mt-1" style="color:var(--color-text-muted)">CREA TU PRIMERA CATEGORÍA PARA ORGANIZAR
                         EL MENÚ.</p>
                     <div class="mt-5">
-                        <a href="category_form.php" class="btn-primary text-xs">
+                        <a href="/category_form" class="btn-primary text-xs">
                             <i class="fa-solid fa-plus mr-1"></i>CREAR CATEGORÍA
                         </a>
                     </div>
@@ -115,11 +115,11 @@ $cats = $pdo->query('SELECT c.categoriaID, c.nombre, c.descripcion, c.activo, CO
                                     </td>
                                     <td class="text-right">
                                         <div class="inline-flex gap-2">
-                                            <a href="category_form.php?id=<?php echo $c['categoriaID']; ?>"
+                                            <a href="/category_form?id=<?php echo $c['categoriaID']; ?>"
                                                 class="btn-outline text-[11px] !py-1 !px-2.5 hover:!border-[#FFE66D] hover:!text-[#FFE66D]">
                                                 <i class="fa-solid fa-pen-to-square mr-1"></i>EDITAR
                                             </a>
-                                            <a href="categories.php?action=delete&id=<?php echo $c['categoriaID']; ?>"
+                                            <a href="/categories?action=delete&id=<?php echo $c['categoriaID']; ?>"
                                                 onclick="return confirm('¿ELIMINAR ESTA CATEGORÍA? LOS PRODUCTOS PERDERÁN SU CATEGORÍA.');"
                                                 class="btn-outline text-[11px] !py-1 !px-2.5"
                                                 style="border-color:rgba(239,68,68,0.3);color:#ef4444;">

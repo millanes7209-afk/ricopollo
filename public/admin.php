@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['usuarioID'])) {
-    header('Location: login.php');
+    header('Location: /login');
     exit;
 }
 require_once __DIR__ . '/../src/db.php';
@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'update_status' && isset($_POST['pedidoID']) && isset($_POST['nuevo_estado'])) {
         $pedidoID = (int) $_POST['pedidoID'];
         $nuevo_estado = $_POST['nuevo_estado'];
-        
+
         $upd = $pdo->prepare('UPDATE pedidos SET estado = ?, fecha_modificacion = NOW() WHERE pedidoID = ?');
         $upd->execute([$nuevo_estado, $pedidoID]);
 
@@ -213,9 +213,9 @@ $pedidos = $stmt->fetchAll();
                                                 <?php echo htmlspecialchars($p['direccion_entrega'] ?: '-'); ?>
                                             </div>
                                             <?php if (!empty($p['latitud']) && !empty($p['longitud'])): ?>
-                                                <a href="https://maps.google.com?q=<?php echo $p['latitud']; ?>,<?php echo $p['longitud']; ?>" 
-                                                   target="_blank"
-                                                   class="inline-flex items-center gap-1 text-[10px] text-blue-400 hover:text-blue-300 font-semibold mt-1">
+                                                <a href="https://maps.google.com?q=<?php echo $p['latitud']; ?>,<?php echo $p['longitud']; ?>"
+                                                    target="_blank"
+                                                    class="inline-flex items-center gap-1 text-[10px] text-blue-400 hover:text-blue-300 font-semibold mt-1">
                                                     <i class="fa-solid fa-map-location-dot"></i>ABRIR EN MAPS
                                                 </a>
                                             <?php endif; ?>
@@ -268,15 +268,11 @@ $pedidos = $stmt->fetchAll();
                         <i class="fa-solid fa-bolt mr-2"></i><?php echo strtoupper('Acciones Rápidas'); ?>
                     </h3>
                     <div class="space-y-3">
-                        <a href="product_form.php" class="btn-primary w-full text-xs">
-                            <i class="fa-solid fa-plus-circle"></i>
-                            <?php echo strtoupper('CREAR NUEVO PRODUCTO'); ?>
-                        </a>
-                        <a href="products.php" class="btn-outline w-full text-xs">
+                        <a href="/products" class="btn-primary w-full text-xs">
                             <i class="fa-solid fa-burger"></i>
-                            <?php echo strtoupper('GESTIONAR PRODUCTOS'); ?>
+                            <?php echo strtoupper('PRODUCTOS'); ?>
                         </a>
-                        <a href="categories.php" class="btn-outline w-full text-xs">
+                        <a href="/categories" class="btn-outline w-full text-xs">
                             <i class="fa-solid fa-tags"></i>
                             <?php echo strtoupper('CATEGORÍAS'); ?>
                         </a>

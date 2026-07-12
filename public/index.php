@@ -10,7 +10,7 @@ function requireAuth()
 {
     session_start();
     if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-        header('Location: login.php');
+        header('Location: /login');
         exit;
     }
 }
@@ -22,12 +22,14 @@ $filename = basename($request_uri);
 if (empty($filename) || strtolower($filename) === 'public' || strtolower($filename) === 'index.php' || strtolower($filename) === 'ricopollo') {
     $path = '/';
 } else {
-    $path = '/' . $filename;
+    // Strip .php extension for clean URL routing
+    $path = '/' . preg_replace('/\.php$/i', '', $filename);
 }
 
 // Router simple
 switch ($path) {
     case '/':
+    case '/menu':
     case '/menu.php':
         // Menú público
         require_once __DIR__ . '/../src/controllers/MenuController.php';
@@ -42,6 +44,12 @@ switch ($path) {
         require_once __DIR__ . '/../src/views/menu/index.php';
         break;
 
+    case '/admin':
+        // Panel de administración - incluye su propio auth check
+        require_once __DIR__ . '/../public/admin.php';
+        break;
+
+    case '/products':
     case '/products.php':
         // Lista de productos (admin)
         requireAuth();
@@ -54,18 +62,18 @@ switch ($path) {
             $id = (int) $_GET['id'];
             if ($_GET['action'] === 'delete') {
                 $productoController->delete($id);
-                header('Location: /ricopollo/public/products.php');
+                header('Location: /products');
                 exit;
             }
             if ($_GET['action'] === 'toggle') {
                 $productoController->toggleDisponible($id);
-                header('Location: /ricopollo/public/products.php');
+                header('Location: /products');
                 exit;
             }
             if ($_GET['action'] === 'toggle_variante' && isset($_GET['variante_id'])) {
                 $varianteId = (int) $_GET['variante_id'];
                 $productoController->toggleVarianteActivo($varianteId);
-                header('Location: /ricopollo/public/products.php');
+                header('Location: /products');
                 exit;
             }
         }
@@ -79,6 +87,7 @@ switch ($path) {
         require_once __DIR__ . '/../src/views/productos/index.php';
         break;
 
+    case '/product_form':
     case '/product_form.php':
         // Formulario de producto (admin)
         requireAuth();
@@ -91,7 +100,7 @@ switch ($path) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $productoController->save($_POST, $_FILES);
             if ($result['success']) {
-                header('Location: /ricopollo/public/products.php');
+                header('Location: /products');
                 exit;
             }
             $error = $result['error'] ?? 'Error al guardar';
@@ -107,6 +116,7 @@ switch ($path) {
         require_once __DIR__ . '/../src/views/productos/form.php';
         break;
 
+    case '/login':
     case '/login.php':
         // Login
         require_once __DIR__ . '/../src/controllers/AuthController.php';
@@ -117,13 +127,46 @@ switch ($path) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $authController->login($_POST['correo'] ?? '', $_POST['contrasena'] ?? '');
             if ($result['success']) {
-                header('Location: /ricopollo/public/products.php');
+                header('Location: /admin');
                 exit;
             }
             $error = $result['error'];
         }
 
         require_once __DIR__ . '/../src/views/auth/login.php';
+        break;
+
+    case '/categories':
+    case '/categories.php':
+        requireAuth();
+        require_once __DIR__ . '/../public/categories.php';
+        break;
+
+    case '/category_form':
+    case '/category_form.php':
+        requireAuth();
+        require_once __DIR__ . '/../public/category_form.php';
+        break;
+
+    case '/logout':
+    case '/logout.php':
+        require_once __DIR__ . '/../public/logout.php';
+        break;
+
+    case '/ticket':
+    case '/ticket.php':
+        requireAuth();
+        require_once __DIR__ . '/../public/ticket.php';
+        break;
+
+    case '/order':
+    case '/order.php':
+        require_once __DIR__ . '/../public/order.php';
+        break;
+
+    case '/order_confirm':
+    case '/order_confirm.php':
+        require_once __DIR__ . '/../public/order_confirm.php';
         break;
 
     default:
